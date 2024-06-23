@@ -3,13 +3,13 @@ FROM node as builder
 # Create app directory
 WORKDIR /usr/app
 
-COPY package.json yarn.lock ./
+COPY package*.json ./
 
-RUN yarn install --frozen-lockfile
+RUN npm ci
 
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
 FROM node:20.14.0-alpine
 
@@ -20,9 +20,9 @@ USER node
 WORKDIR /usr/app
 
 # Install app dependencies
-COPY package.json yarn.lock ./
+COPY package*.json ./
 
-RUN yarn install --production --frozen-lockfile
+RUN npm ci --production
 
 COPY --from=builder /usr/app/dist ./dist
 
