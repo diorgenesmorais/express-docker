@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
     app:
@@ -6,4 +6,6 @@ services:
         ports:
             - "4000:4000"
         container_name: app_zipcode
+        volumes:
+            - ~/appLogs:/usr/app/logs:rw
         command: npm run start
