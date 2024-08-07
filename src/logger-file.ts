@@ -21,10 +21,17 @@ function logToJson(message: string, additionalInfo?: any) {
     }
 
     logs.push(logData);
-    fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
+    fs.mkdir(path.dirname(logFilePath), { recursive: true }, (err) => {
+        if (err) {
+            throw err;
+            return;
+        }
 
-    fs.writeFileSync(logFilePath, JSON.stringify(logs), {
-        encoding: "utf8",
+        fs.writeFile(logFilePath, JSON.stringify(logs), "utf-8", (err) => {
+            if (err) {
+                throw err;
+            }
+        });
     });
 }
 
