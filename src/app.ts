@@ -21,11 +21,22 @@ app.get("/cep", async (req: Request, res: Response) => {
         return;
     }
 
-    const result = await cep(zipcode.toString());
-
-    logToJson("Response", result);
-
-    res.status(200).json(result);
+    try {
+        const result = await cep(zipcode.toString());
+    
+        logToJson("Response", result);
+    
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            error: error,
+        });
+    }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// ensure that unhandled promise rejections are caught here
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Unhandled Rejection at:]', promise, '[reason:]', reason);
+});
