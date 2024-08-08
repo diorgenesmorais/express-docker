@@ -1,4 +1,4 @@
-FROM node as builder
+FROM node:20.14.0-alpine AS builder
 
 # Create app directory
 WORKDIR /usr/app
@@ -13,10 +13,8 @@ RUN npm run build
 
 FROM node:20.14.0-alpine
 
-ENV NODE_ENV production
-USER node
+ENV NODE_ENV=production
 
-# Create app directory
 WORKDIR /usr/app
 
 # Install app dependencies
@@ -26,5 +24,8 @@ RUN npm ci --production
 
 COPY --from=builder /usr/app/dist ./dist
 
+USER node
+
 EXPOSE 4000
+
 CMD [ "node", "dist/app.js" ]
