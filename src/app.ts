@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import cep from "cep-promise";
-import logToJson from "./logger-file";
+import { logList, logToJson } from "./logger-file";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +33,17 @@ app.get("/cep", async (req: Request, res: Response) => {
         });
     }
 });
+
+app.get('/logs', async (req: Request, res: Response) => {
+    try {
+        const result = logList();
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            error: 'Error reading or parsing log file'
+        });
+    }
+})
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

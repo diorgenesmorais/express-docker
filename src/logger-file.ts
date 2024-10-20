@@ -24,7 +24,6 @@ function logToJson(message: string, additionalInfo?: any) {
     fs.mkdir(path.dirname(logFilePath), { recursive: true }, (err) => {
         if (err) {
             throw err;
-            return;
         }
 
         fs.writeFile(logFilePath, JSON.stringify(logs), "utf-8", (err) => {
@@ -35,4 +34,18 @@ function logToJson(message: string, additionalInfo?: any) {
     });
 }
 
-export default logToJson;
+function logList() {
+    if (!fs.existsSync(logFilePath)) {
+        throw new Error("Log file does not exist.");
+    }
+
+    try {
+        const logData = fs.readFileSync(logFilePath, "utf-8");
+        const logs: ILogMessage[] = JSON.parse(logData);
+        return logs;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export { logToJson, logList };
