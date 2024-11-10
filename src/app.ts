@@ -1,9 +1,12 @@
 import express, { Request, Response } from "express";
 import cep from "cep-promise";
 import { logList, logToJson } from "./logger-file";
+import helmet from "helmet";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+app.use(helmet());
 
 app.get("/", (req: Request, res: Response) => {
     res.json({
