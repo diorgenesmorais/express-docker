@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import { promises as fs } from "fs";
 import * as path from "path";
 
 interface ILogMessage {
@@ -7,43 +7,43 @@ interface ILogMessage {
     additionalInfo?: any;
 }
 
-const logFilePath = path.join(__dirname, "..", "./logs", "log.json");
-const logs: ILogMessage[] = [];
+const logDir = path.join(__dirname, "..", "logs");
+const logFilePath = path.join(logDir, "log.json");
 
-function logToJson(message: string, additionalInfo?: any) {
-    const logData: ILogMessage = {
-        timestamp: new Date().toISOString(),
-        message: message,
-    };
+async function logToJson(message: string, additionalInfo?: any): Promise<void> {
+    try {
+        const logData: ILogMessage = {
+            timestamp: new Date().toISOString(),
+            message,
+            ...(additionalInfo && { additionalInfo }),
+        };
 
-    if (additionalInfo) {
-        logData["additionalInfo"] = additionalInfo;
-    }
+        await fs.mkdir(logDir, { recursive: true });
 
-    logs.push(logData);
-    fs.mkdir(path.dirname(logFilePath), { recursive: true }, (err) => {
-        if (err) {
-            throw err;
+        let existingLogs: ILogMessage[] = [];
+
+        try {
+            const content = await fs.readFile(logFilePath, "utf-8");
+            existingLogs = JSON.parse(content);
+        } catch (err: any) {
+            if (err.code !== "ENOENT") throw err;
         }
 
-        fs.writeFile(logFilePath, JSON.stringify(logs), "utf-8", (err) => {
-            if (err) {
-                throw err;
-            }
-        });
-    });
+        existingLogs.push(logData);
+        await fs.writeFile(logFilePath, JSON.stringify(existingLogs, null, 2), "utf-8");
+    } catch (err) {
+        console.error("Erro ao escrever log:", err);
+    }
 }
 
-function logList() {
-    if (!fs.existsSync(logFilePath)) {
-        throw new Error("Log file does not exist.");
-    }
-
+async function logList(): Promise<ILogMessage[]> {
     try {
-        const logData = fs.readFileSync(logFilePath, "utf-8");
-        const logs: ILogMessage[] = JSON.parse(logData);
-        return logs;
-    } catch (err) {
+        const data = await fs.readFile(logFilePath, "utf-8");
+        return JSON.parse(data);
+    } catch (err: any) {
+        if (err.code === "ENOENT") {
+            throw new Error("Arquivo de log não existe.");
+        }
         throw err;
     }
 }

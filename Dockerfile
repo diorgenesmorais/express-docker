@@ -1,7 +1,7 @@
-FROM node:20.14.0-alpine AS builder
+FROM node:22.15.0-alpine AS builder
 
 # Create app directory
-WORKDIR /usr/app
+WORKDIR /app
 
 COPY package*.json ./
 
@@ -11,18 +11,20 @@ COPY . .
 
 RUN npm run build
 
-FROM node:20.14.0-alpine
+FROM node:22.15.0-alpine
 
 ENV NODE_ENV=production
 
-WORKDIR /usr/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
 
 RUN npm ci --production
 
-COPY --from=builder /usr/app/dist ./dist
+COPY --from=builder /app/dist ./dist
+
+RUN mkdir -p /app/logs && chown -R node:node /app
 
 USER node
 

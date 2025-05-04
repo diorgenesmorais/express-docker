@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const result = logList();
+        const result = await logList();
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({
